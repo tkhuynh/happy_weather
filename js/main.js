@@ -1,4 +1,44 @@
 $(function() {
+	var autocompleteCity;
+	google.load("maps", "3.x", {
+		callback: initialize,
+		other_params: 'sensor=false&libraries=places'
+	});
+
+	function initialize() {
+		var input = document.getElementById('id_location');
+		var autocomplete = new google.maps.places.Autocomplete(input, {
+			types: ['(cities)']
+		});
+		google.maps.event.addListener(autocomplete, 'place_changed', function() {
+			var place = autocomplete.getPlace();
+			if (!place.geometry) {
+				console.log('no location');
+				return;
+			}
+			autocompleteCity = place.formatted_address;
+		});
+	}
+
+	function initMap(lat, lng) {
+		// Create a map object and specify the DOM element for display.
+		$('#map').addClass("thumbnail");
+		var map = new google.maps.Map(document.getElementById('map'), {
+			center: {
+				lat: lat,
+				lng: lng
+			},
+			scrollwheel: false,
+			zoom: 9
+		});
+		var marker = new google.maps.Marker({
+			position: {
+				lat: lat,
+				lng: lng
+			},
+			map: map,
+		});
+	}
 	var url = "http://api.openweathermap.org/data/2.5/forecast?";
 	var key = "&appid=c55ec823be46f88fbcf55db70cc8e772";
 	$("#search-form").on("submit", function(e) {
@@ -53,11 +93,13 @@ $(function() {
 					borderWidth: 0
 				},
 				data: {
-            table: 'datatable'
-        },
+					table: 'datatable'
+				},
 				series: dataSeries
 			});
-			$('#chart-wrapper').prepend("<h1 id='city' class='text-center'>" + result.city.name +"</h1>");
+			var city = autocompleteCity || result.city.name;
+			$('#chart-wrapper').prepend("<h1 id='city' class='text-center'>" + city + "</h1>");
+			initMap(result.city.coord.lat, result.city.coord.lon);
 		});
 	});
 });

@@ -1,0 +1,24 @@
+.container{
+  width: 100%;
+  margin: 0 auto;
+}
+#map_container{
+  position: relative;
+}
+.row {
+  display: flex;
+  justify-content: center;
+}
+.map-wrapper {
+  align-self: center;
+  position: relative;
+}
+#map{
+  margin: 0 auto;
+  width: 80%;
+  height: 0;
+  overflow: hidden;
+  padding-bottom: 80%;
+  padding-top: 30px;
+  position: relative;
+}
