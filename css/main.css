@@ -5,20 +5,28 @@
 #map_container{
   position: relative;
 }
-.row {
-  display: flex;
-  justify-content: center;
-}
-.map-wrapper {
-  align-self: center;
-  position: relative;
+@media (min-width: 991px) {
+  .row {
+    display: flex;
+    justify-content: center;
+  }
+  .map-wrapper {
+    align-self: center;
+    position: relative;
+  }
 }
 #map{
   margin: 0 auto;
   width: 80%;
   height: 0;
   overflow: hidden;
-  padding-bottom: 80%;
+  padding-bottom: 60%;
   padding-top: 30px;
   position: relative;
+}
+.data-icon {
+  height: 60px;
+}
+.current-data {
+  font-size: 30px;
 }

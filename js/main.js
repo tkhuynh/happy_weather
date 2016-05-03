@@ -1,4 +1,5 @@
 $(function() {
+	// auto compelte for city
 	var autocompleteCity;
 	google.load("maps", "3.x", {
 		callback: initialize,
@@ -20,6 +21,7 @@ $(function() {
 		});
 	}
 
+	// init map function
 	function initMap(lat, lng) {
 		// Create a map object and specify the DOM element for display.
 		$('#map').addClass("thumbnail");
@@ -29,7 +31,7 @@ $(function() {
 				lng: lng
 			},
 			scrollwheel: false,
-			zoom: 9
+			zoom: 12
 		});
 		var marker = new google.maps.Marker({
 			position: {
@@ -39,17 +41,26 @@ $(function() {
 			map: map,
 		});
 	}
-	var url = "http://api.openweathermap.org/data/2.5/forecast?";
+
+	function titleize(str) {
+		return str.replace(/\w\S*/g, function(txt) {
+			return txt.charAt(0).toUpperCase() + txt.substr(1);
+		});
+	}
+
+	var url = "http://api.openweathermap.org/data/2.5/";
+	var unit = "&units=imperial";
 	var key = "&appid=c55ec823be46f88fbcf55db70cc8e772";
 	$("#search-form").on("submit", function(e) {
+		var templateData = {};
 		e.preventDefault();
 		var query = $(this).serialize();
-		$("input.search-term").val('');
-		$.get(url + query + key, function(result) {
+		$("input#id_location").val('');
+		$.get(url + "forecast?" + query + unit + key, function(result) {
 			var dataSeries = [];
 			for (var i = 0; i < result.list.length; i += 8) {
 				var dayData = result.list.slice(i, i + 8).map(function(data) {
-					return Number((data.main.temp * 9 / 5 - 459.67).toFixed(2));
+					return data.main.temp;
 				});
 				var day = result.list[i].dt_txt.slice(0, 10);
 				dataSeries.push({
@@ -98,8 +109,32 @@ $(function() {
 				series: dataSeries
 			});
 			var city = autocompleteCity || result.city.name;
-			$('#chart-wrapper').prepend("<h1 id='city' class='text-center'>" + city + "</h1>");
+			$.get(url + "weather?" + query + unit + key, function(currentData) {
+				templateData = {
+					city_name: city,
+					weather_description: titleize(currentData.weather[0].description),
+					cloud_icon_url: "http://openweathermap.org/img/w/" + currentData.weather[0].icon + ".png",
+					temp_icon_url: "images/temperature.png",
+					humidity_icon_url: "images/humidity.png",
+					wind_icon_url: "images/wind.png",
+					temp: Math.round(currentData.main.temp),
+					humidity: currentData.main.humidity,
+					clouds: currentData.clouds.all,
+					wind: currentData.wind.speed
+				};
+				// mustache
+				var template = $('#template').html();
+				Mustache.parse(template); // optional, speeds up future uses
+				var rendered = Mustache.render(template, {
+					currentData: templateData
+				});
+				$('#target').html(rendered);
+			});
+
 			initMap(result.city.coord.lat, result.city.coord.lon);
 		});
 	});
+
+
+
 });

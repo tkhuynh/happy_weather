@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- Bootstrap -->
 	<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 	<!-- Font Awesome -->
@@ -22,14 +23,43 @@
 	      </span>
 	    </div>
 	  </form>
+	  <br>
+	  <div id="geoLocation"></div>
 		<div class="row">
-			<div class="col-lg-7">
-				<div id="chart-wrapper">
-				</div>
+			<div class="col-lg-7 col-md-12">
+				<div id="target" class="text-center"></div>
+					<script id="template" type="x-tmpl-mustache">
+					<h1>{{currentData.city_name}}</h1>
+					<h3>{{currentData.weather_description}} <span><img src="{{currentData.cloud_icon_url}}" class="data-icon"></span></h3>
+					<h4>{{currentData.current_time}}</h4>
+						<div class="row">
+							<div class="col-xs-4">
+								<h4>Temperature</h4>
+								<img src="{{currentData.temp_icon_url}}" class="data-icon">
+								<p class="current-data text-muted">{{currentData.temp}} <span&#8457;<p>
+							</div>
+							<div class="col-xs-4">
+								<h4>Wind</h4>
+								<img src="{{currentData.wind_icon_url}}" class="data-icon">
+								<p class="current-data text-muted">{{currentData.wind}} mph<p>
+							</div>
+							<div class="col-xs-4">
+								<h4>Humidity</h4>
+								<img src="{{currentData.humidity_icon_url}}" class="data-icon">
+								<p class="current-data text-muted">{{currentData.humidity}}%<p>
+							</div>
+						</div
+					</script>
 			</div>
-			<div class="col-lg-5 map-wrapper">
+			<div class="col-lg-5 col-md-12 map-wrapper">
 				<div id="map_container"></div>
 			  <div id="map"></div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-12">
+				<div id="chart-wrapper">
+				</div>
 			</div>
 		</div>
 	</div>
@@ -43,6 +73,8 @@
 	<!-- HighChart -->
 	<script src="https://code.highcharts.com/highcharts.js"></script>
 	<script src="https://code.highcharts.com/modules/exporting.js"></script>
+	<!-- Mustache -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
 	<!-- Custom JS -->
 	<script type="text/javascript" src="js/main.js"></script>
 </body>
