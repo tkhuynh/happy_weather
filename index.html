@@ -24,27 +24,26 @@
 	    </div>
 	  </form>
 	  <br>
-	  <div id="geoLocation"></div>
 		<div class="row">
 			<div class="col-lg-7 col-md-12">
 				<div id="target" class="text-center"></div>
 					<script id="template" type="x-tmpl-mustache">
-					<h1>{{currentData.city_name}}</h1>
-					<h3>{{currentData.weather_description}} <span><img src="{{currentData.cloud_icon_url}}" class="data-icon"></span></h3>
+					<h1 class="text-muted">{{currentData.city_name}}</h1>
+					<h3 class="text-muted">{{currentData.weather_description}} <span><img src="{{currentData.cloud_icon_url}}" class="data-icon"></span></h3>
 					<h4>{{currentData.current_time}}</h4>
 						<div class="row">
 							<div class="col-xs-4">
-								<h4>Temperature</h4>
+								<h4 class="text-muted">Temperature</h4>
 								<img src="{{currentData.temp_icon_url}}" class="data-icon">
-								<p class="current-data text-muted">{{currentData.temp}} <span&#8457;<p>
+								<p class="current-data text-muted">{{currentData.temp}} °F<span&#8457;<p>
 							</div>
 							<div class="col-xs-4">
-								<h4>Wind</h4>
+								<h4 class="text-muted">Wind</h4>
 								<img src="{{currentData.wind_icon_url}}" class="data-icon">
 								<p class="current-data text-muted">{{currentData.wind}} mph<p>
 							</div>
 							<div class="col-xs-4">
-								<h4>Humidity</h4>
+								<h4 class="text-muted">Humidity</h4>
 								<img src="{{currentData.humidity_icon_url}}" class="data-icon">
 								<p class="current-data text-muted">{{currentData.humidity}}%<p>
 							</div>
