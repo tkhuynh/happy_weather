@@ -122,26 +122,33 @@ $(function() {
 
 	// 2 week forecast for temprature
 	function nextFourTeen(result) {
-		var seriesData = result.list.map(function(data) {
-			return {
+		var seriesTempData = [],
+			drilldownTempData = [],
+			windHumidityCategories = [],
+			humidityData = [],
+			windData = [];
+		result.list.forEach(function(data) {
+			windHumidityCategories.push(strftime('%a %m/%d', new Date(data.dt * 1000)));
+			humidityData.push(data.humidity);
+			windData.push(data.speed);
+			seriesTempData.push({
 				name: strftime('%a %m/%d', new Date(data.dt * 1000)),
-				y: data.temp.day,
+				y: Math.round(data.temp.day),
 				drilldown: strftime('%a %m/%d', new Date(data.dt * 1000))
-			};
-		});
-		var drilldownData = result.list.map(function(data) {
-			return {
+			});
+
+			drilldownTempData.push({
 				name: strftime('%a %m/%d', new Date(data.dt * 1000)),
 				id: strftime('%a %m/%d', new Date(data.dt * 1000)),
 				data: [
-					["Morning", data.temp.morn],
-					["Day", data.temp.day],
-					["Evening", data.temp.eve],
-					["Night", data.temp.night],
-					["Low", data.temp.min],
-					["High", data.temp.max]
+					["Morning", Math.round(data.temp.morn)],
+					["Day", Math.round(data.temp.day)],
+					["Evening", Math.round(data.temp.eve)],
+					["Night", Math.round(data.temp.night)],
+					["Low", Math.round(data.temp.min)],
+					["High", Math.round(data.temp.max)]
 				]
-			};
+			});
 		});
 
 		$('#next-fourteen-chart').highcharts({
@@ -178,18 +185,89 @@ $(function() {
 
 			tooltip: {
 				headerFormat: '<span style="font-size:11px">Day Temperature</span><br>',
-				pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{y} °F<br/>'
+				pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y} °F<br/>'
 			},
 
 			series: [{
 				name: 'Brands',
 				colorByPoint: true,
 
-				data: seriesData
+				data: seriesTempData
 			}],
 			drilldown: {
-				series: drilldownData
+				series: drilldownTempData
 			}
+		});
+		console.log(humidityData)
+		$('#wind-humidity').highcharts({
+			chart: {
+				zoomType: 'xy'
+			},
+			title: {
+				text: 'Two Week Wind and Humidity Forecast'
+			},
+			subtitle: {
+				text: 'Source: WorldClimate.com'
+			},
+			xAxis: [{
+				categories: windHumidityCategories,
+				crosshair: true
+			}],
+			yAxis: [{ // Primary yAxis
+				labels: {
+					format: '{value}%',
+					style: {
+						color: Highcharts.getOptions().colors[1]
+					}
+				},
+				title: {
+					text: 'Humidity',
+					style: {
+						color: Highcharts.getOptions().colors[1]
+					}
+				}
+			}, { // Secondary yAxis
+				title: {
+					text: 'Wind',
+					style: {
+						color: Highcharts.getOptions().colors[0]
+					}
+				},
+				labels: {
+					format: '{value} mph',
+					style: {
+						color: Highcharts.getOptions().colors[0]
+					}
+				},
+				opposite: true
+			}],
+			tooltip: {
+				shared: true
+			},
+			legend: {
+				layout: 'vertical',
+				align: 'center',
+				y: 50,
+				verticalAlign: 'top',
+				backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+			},
+			series: [{
+				name: 'Wind',
+				type: 'column',
+				yAxis: 1,
+				data: windData,
+				tooltip: {
+					valueSuffix: ' mph'
+				}
+
+			}, {
+				name: 'Humidity',
+				type: 'spline',
+				data: humidityData,
+				tooltip: {
+					valueSuffix: '%'
+				}
+			}]
 		});
 	}
 
