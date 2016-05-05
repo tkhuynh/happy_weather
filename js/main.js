@@ -47,7 +47,8 @@ $(function() {
 				lng: lng
 			},
 			scrollwheel: false,
-			zoom: 12
+			zoom: 12,
+			draggable: false
 		});
 		var marker = new google.maps.Marker({
 			position: {
@@ -198,7 +199,7 @@ $(function() {
 				series: drilldownTempData
 			}
 		});
-		console.log(humidityData)
+
 		$('#wind-humidity').highcharts({
 			chart: {
 				zoomType: 'xy'
@@ -207,7 +208,7 @@ $(function() {
 				text: 'Two Week Wind and Humidity Forecast'
 			},
 			subtitle: {
-				text: 'Source: WorldClimate.com'
+				text: 'Source: <a href="http://openweathermap.org">OpenWeatherMap</a>'
 			},
 			xAxis: [{
 				categories: windHumidityCategories,
@@ -217,26 +218,26 @@ $(function() {
 				labels: {
 					format: '{value}%',
 					style: {
-						color: Highcharts.getOptions().colors[1]
+						color: "#E78D1D"
 					}
 				},
 				title: {
 					text: 'Humidity',
 					style: {
-						color: Highcharts.getOptions().colors[1]
+						color: "#E78D1D"
 					}
 				}
 			}, { // Secondary yAxis
 				title: {
 					text: 'Wind',
 					style: {
-						color: Highcharts.getOptions().colors[0]
+						color: "#689bff"
 					}
 				},
 				labels: {
 					format: '{value} mph',
 					style: {
-						color: Highcharts.getOptions().colors[0]
+						color: "#689bff"
 					}
 				},
 				opposite: true
@@ -254,6 +255,7 @@ $(function() {
 			series: [{
 				name: 'Wind',
 				type: 'column',
+				color: "#689bff",
 				yAxis: 1,
 				data: windData,
 				tooltip: {
@@ -263,6 +265,7 @@ $(function() {
 			}, {
 				name: 'Humidity',
 				type: 'spline',
+				color: "#E78D1D",
 				data: humidityData,
 				tooltip: {
 					valueSuffix: '%'
@@ -282,8 +285,7 @@ $(function() {
 			wind_icon_url: "images/wind.png",
 			temp: Math.round(currentData.main.temp),
 			humidity: currentData.main.humidity,
-			clouds: currentData.clouds.all,
-			wind: currentData.wind.speed
+			wind: currentData.wind.speed.toFixed(1)
 		};
 		// mustache
 		Mustache.parse(template); // optional, speeds up future uses
