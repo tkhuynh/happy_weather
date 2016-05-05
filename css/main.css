@@ -50,15 +50,17 @@ hr {
   font-size: 20px;
   font-weight: lighter;
 }
+.date-time {
+  font-family: 'Orbitron', sans-serif;
+  font-size:50px;
+  text-shadow:0px 0px 1px #fff;
+  color:#fff;
+  letter-spacing: 5px;
+}
 #clock {
   position:relative;
   bottom: -40px;
   left: -5px;
-  font-family: 'Orbitron', sans-serif;
-  font-size:60px;
-  text-shadow:0px 0px 1px #fff;
-  color:#fff;
-  letter-spacing: 5px;
 }
 @media (max-width: 768px) {
   #clock {
@@ -68,7 +70,10 @@ hr {
     margin-top: 10px;
   }
 }
-
+#date {
+  
+  font-size: 30px;
+}
 .am-pm {
   margin-left: 5px;
   position:relative;

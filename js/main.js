@@ -113,11 +113,8 @@ $(function() {
 			},
 			legend: {
 				layout: 'vertical',
-				align: 'left',
-				x: 80,
-				verticalAlign: 'top',
-				y: 50,
-				floating: true,
+				align: 'center',
+				verticalAlign: 'bottom',
 				borderWidth: 0
 			},
 			data: {
@@ -254,8 +251,7 @@ $(function() {
 			legend: {
 				layout: 'vertical',
 				align: 'center',
-				y: 50,
-				verticalAlign: 'top',
+				verticalAlign: 'bottom',
 				backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
 			},
 			series: [{
@@ -303,22 +299,9 @@ $(function() {
 
 	// make clock
 	function startTime() {
-		var today = new Date();
-		var h = today.getHours();
-		var m = today.getMinutes();
-		var ap;
-		if (h < 12) {
-			ap = "AM";
-		} else {
-			ap = "PM";
-		}
-		if (h === 0) {
-			h = 12;
-		}
-		if (m < 10) {
-			m = "0" + m;
-		}
-		$("#clock").html(h + ":" + m + "<span class='am-pm'>" + ap + "</span>");
+		var time = strftime("%l:%M <span class='am-pm'>%p</span");
+		$("#clock").html(time);
+		$("#date").html(strftime("%B %e, %Y"));
 		var t = setTimeout(startTime, 500);
 	}
 });
