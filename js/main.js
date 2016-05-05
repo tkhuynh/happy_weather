@@ -1,4 +1,7 @@
 $(function() {
+	// set clock
+	startTime();
+
 	var cityName;
 	var template = $('#template').html();
 	var url = "http://api.openweathermap.org/data/2.5/";
@@ -82,7 +85,7 @@ $(function() {
 		$('#city').text("Welcome to, " + result.city.name);
 		$('#chart-wrapper').highcharts({
 			title: {
-				text: "Next Five Day Temperature Forecast",
+				text: "Next Five Days's Temperature Forecast",
 				x: -20 //center
 			},
 			subtitle: {
@@ -110,8 +113,11 @@ $(function() {
 			},
 			legend: {
 				layout: 'vertical',
-				align: 'right',
-				verticalAlign: 'middle',
+				align: 'left',
+				x: 80,
+				verticalAlign: 'top',
+				y: 50,
+				floating: true,
 				borderWidth: 0
 			},
 			data: {
@@ -293,5 +299,26 @@ $(function() {
 			currentData: templateData
 		});
 		$('#target').html(rendered);
+	}
+
+	// make clock
+	function startTime() {
+		var today = new Date();
+		var h = today.getHours();
+		var m = today.getMinutes();
+		var ap;
+		if (h < 12) {
+			ap = "AM";
+		} else {
+			ap = "PM";
+		}
+		if (h === 0) {
+			h = 12;
+		}
+		if (m < 10) {
+			m = "0" + m;
+		}
+		$("#clock").html(h + ":" + m + "<span class='am-pm'>" + ap + "</span>");
+		var t = setTimeout(startTime, 500);
 	}
 });
