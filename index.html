@@ -147,10 +147,17 @@
 				</div>
 			</div>
 		</div>
+		<hr>
 	</section>
 
 	<section id="restaurants">
 		<div class="container">
+			<div id="target2">
+				<script id="restaurantTemplate" type="x-tmpl-mustache">
+					<h2 class="text-center">{{restaurants.number_of_restaurants}} Restaurants Near {{restaurants.city}}</h2>
+					<h4 class="text-center">{{restaurants.reminder}}</h4>
+				</script>
+			</div>
 			<div id="restaurants-map"></div>
 		</div>
 	</section>

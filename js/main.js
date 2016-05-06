@@ -5,8 +5,10 @@ $(function() {
 	});
 	// set clock
 	startTime();
-
+	// Mustach template
 	var template = $('#template').html();
+	var template2 = $('#restaurantTemplate').html();
+
 	// OpenWeatherMap
 	var url = "http://api.openweathermap.org/data/2.5/";
 	var unit = "&units=imperial";
@@ -296,13 +298,15 @@ $(function() {
 			var infowindow = new google.maps.InfoWindow();
 			var bounds = new google.maps.LatLngBounds();
 			venues.forEach(function(venue) {
+				var category = venue.categories.name ? venue.categories[0].name : "<i>not specipied</i>";
+				var menu = venue.menu ? "<br><a href='" + venue.menu.url + "' target='_blank' class='view-menu'>View Menu</a>" : "";
 				var phone = venue.contact.formattedPhone || "<i>not listed</i>";
 				var contentString = '<div class="windowContent">' +
 					'<div id="siteNotice">' +
 					'</div>' +
 					'<h5 id="firstHeading" class="firstHeading">' + venue.name + '</h5>' +
-					'<p><i>' + venue.categories[0].name + '</i></p>' +
-					'<p>' + venue.location.address + ', ' + venue.location.city +
+					'<p>Category: ' + category + menu +
+					'<br>' + venue.location.address + ', ' + venue.location.city +
 					'<br>Phone: ' + phone + '</p>' +
 					'</div>';
 
@@ -323,6 +327,18 @@ $(function() {
 				});
 			});
 			map.fitBounds(bounds);
+			// mustache
+			console.log(result)
+			var templateData2	= {
+				number_of_restaurants: fourSquare.response.venues.length,
+				city: result.city.name,
+				reminder: "Click on marker to see details"
+			};
+			Mustache.parse(template); // optional, speeds up future uses
+			var rendered = Mustache.render(template2, {
+				restaurants: templateData2
+			});
+			$('#target2').html(rendered);
 		});
 	}
 
