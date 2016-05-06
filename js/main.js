@@ -12,12 +12,12 @@ $(function() {
 	$.post("https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyC9y3POIKBBOepjuXll6dr0Yo3znP3OIyk", function(userLocation) {
 		// if Google Geolocation success
 		if (!userLocation.error) {
+			// only need to get lat and lng from result to get the map of the area
+			// the result data structure is not the same for all country.
+			// will get city name with result from Open Weather Map Api
 			var lat = userLocation.location.lat;
 			var lon = userLocation.location.lng;
 			$.get("http://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&sensor=true", function(cityInfo) {
-				if (cityInfo.results[0].address_components[4].short_name == "US") {
-					cityName = cityInfo.results[1].formatted_address;
-				}
 				var query = "lat=" + lat + "&lon=" + lon;
 				$.get(url + "forecast?" + query + unit + key, forecast);
 				$.get(url + "weather?" + query + unit + key, currentWeather);
@@ -26,7 +26,6 @@ $(function() {
 		} else {
 			// if failed with Google Geolocation, have to get user ip address to get initial location
 			$.getJSON('http://ipinfo.io', function(data) {
-				cityName = data.city + ", " + data.region;
 				var lat = data.loc.split(",")[0];
 				var lon = data.loc.split(",")[1];
 				var query = "lat=" + lat + "&lon=" + lon;
@@ -298,6 +297,9 @@ $(function() {
 
 	// current weather
 	function currentWeather(currentData) {
+		if (!cityName) {
+			cityName = currentData.name + ", " + currentData.sys.country;
+		}
 		var templateData = {
 			city_name: cityName,
 			weather_description: titleize(currentData.weather[0].description),
