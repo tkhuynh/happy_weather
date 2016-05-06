@@ -1,6 +1,6 @@
 $(function() {
 	// flash message disappear
-	$("#current-location-msg").fadeTo(2000, 800).fadeOut(800, function(){
+	$("#current-location-msg").fadeTo(5000, 800).fadeOut(800, function(){
     $(this).alert('close');
   });
 	// set clock
