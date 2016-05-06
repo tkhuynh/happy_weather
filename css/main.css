@@ -142,6 +142,12 @@ hr {
   font-size: 20px;
 }
 
+#restaurants-map {
+  margin: 0 auto;
+  max-width: 700px;
+  height: 500px;
+}
+
 /*footer*/
 footer {
   margin-top: 20px;

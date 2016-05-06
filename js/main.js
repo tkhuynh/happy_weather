@@ -1,8 +1,8 @@
 $(function() {
 	// flash message disappear
-	$("#current-location-msg").fadeTo(5000, 800).fadeOut(800, function(){
-    $(this).alert('close');
-  });
+	$("#current-location-msg").fadeTo(5000, 800).fadeOut(800, function() {
+		$(this).alert('close');
+	});
 	// set clock
 	startTime();
 
@@ -12,32 +12,13 @@ $(function() {
 	var unit = "&units=imperial";
 	var key = "&appid=c55ec823be46f88fbcf55db70cc8e772";
 	var cityName;
-	// get User current location with Google Geolocation API
-	$.post("https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyC9y3POIKBBOepjuXll6dr0Yo3znP3OIyk", function(userLocation) {
-		// if Google Geolocation success
-		if (!userLocation.error) {
-			// only need to get lat and lng from result to get the map of the area
-			// the result data structure is not the same for all country.
-			// will get city name with result from Open Weather Map Api
-			var lat = userLocation.location.lat;
-			var lon = userLocation.location.lng;
-			$.get("http://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&sensor=true", function(cityInfo) {
-				var query = "lat=" + lat + "&lon=" + lon;
-				$.get(url + "forecast?" + query + unit + key, forecast);
-				$.get(url + "weather?" + query + unit + key, currentWeather);
-				$.get(url + "forecast/daily?" + query + unit + "&cnt=14" + key, nextFourTeen);
-			});
-		} else {
-			// if failed with Google Geolocation, have to get user ip address to get initial location
-			$.getJSON('http://ipinfo.io', function(data) {
-				var lat = data.loc.split(",")[0];
-				var lon = data.loc.split(",")[1];
-				var query = "lat=" + lat + "&lon=" + lon;
-				$.get(url + "forecast?" + query + unit + key, forecast);
-				$.get(url + "weather?" + query + unit + key, currentWeather);
-				$.get(url + "forecast/daily?" + query + unit + "&cnt=14" + key, nextFourTeen);
-			});
-		}
+	$.getJSON('http://ipinfo.io', function(data) {
+		var lat = data.loc.split(",")[0];
+		var lon = data.loc.split(",")[1];
+		var query = "lat=" + lat + "&lon=" + lon;
+		$.get(url + "forecast?" + query + unit + key, forecast);
+		$.get(url + "weather?" + query + unit + key, currentWeather);
+		$.get(url + "forecast/daily?" + query + unit + "&cnt=14" + key, nextFourTeen);
 	});
 
 	// auto compelte for city
@@ -296,6 +277,52 @@ $(function() {
 					valueSuffix: '%'
 				}
 			}]
+		});
+		var lat = result.city.coord.lat;
+		var lng = result.city.coord.lon;
+		$("#restaurants-map").addClass("thumbnail");
+		var map = new google.maps.Map(document.getElementById('restaurants-map'), {
+			center: {
+				lat: lat,
+				lng: lng
+			},
+			scrollwheel: false,
+			zoom: 14,
+			draggable: false
+		});
+		$.get("https://api.foursquare.com/v2/venues/search?client_id=JRAIR0U0EJF0MRS02CHQ1BIQZ2UGAKHJUTNDYMYL11L3E4O0&client_secret=UYZH52YG3KBL0PR0YU55BML5LLVUTP2YOI2YKXFT2KWXAUJY&v=20130815&ll=" + lat + "," + lng + "&query=restaurant&radius=2000", function(fourSquare) {
+			console.log(fourSquare.response.venues);
+			var venues = fourSquare.response.venues;
+			var infowindow = new google.maps.InfoWindow();
+			var bounds = new google.maps.LatLngBounds();
+			venues.forEach(function(venue) {
+				var phone = venue.contact.formattedPhone || "<i>not listed</i>";
+				var contentString = '<div class="windowContent">' +
+					'<div id="siteNotice">' +
+					'</div>' +
+					'<h5 id="firstHeading" class="firstHeading">' + venue.name + '</h5>' +
+					'<p><i>' + venue.categories[0].name + '</i></p>' +
+					'<p>' + venue.location.address + ', ' + venue.location.city +
+					'<br>Phone: ' + phone + '</p>' +
+					'</div>';
+
+				var marker = new google.maps.Marker({
+					position: {
+						lat: venue.location.lat,
+						lng: venue.location.lng
+					},
+					map: map
+				});
+
+				bounds.extend(marker.position);
+
+				marker.addListener('click', function() {
+					infowindow.close();
+					infowindow.setContent(contentString);
+					infowindow.open(map, marker);
+				});
+			});
+			map.fitBounds(bounds);
 		});
 	}
 
