@@ -2,19 +2,39 @@ $(function() {
 	// set clock
 	startTime();
 
-	var cityName;
 	var template = $('#template').html();
+	// OpenWeatherMap
 	var url = "http://api.openweathermap.org/data/2.5/";
 	var unit = "&units=imperial";
 	var key = "&appid=c55ec823be46f88fbcf55db70cc8e772";
-	$.getJSON('http://ipinfo.io', function(data) {
-		cityName = data.city + ", " + data.region;
-		var lat = data.loc.split(",")[0];
-		var lon = data.loc.split(",")[1];
-		var query = "lat=" + lat + "&lon=" + lon;
-		$.get(url + "forecast?" + query + unit + key, forecast);
-		$.get(url + "weather?" + query + unit + key, currentWeather);
-		$.get(url + "forecast/daily?" + query + unit + "&cnt=14" + key, nextFourTeen);
+	var cityName;
+	// get User current location with Google Geolocation API
+	$.post("https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyC9y3POIKBBOepjuXll6dr0Yo3znP3OIyk", function(userLocation) {
+		// if Google Geolocation success
+		if (!userLocation.error) {
+			var lat = userLocation.location.lat;
+			var lon = userLocation.location.lng;
+			$.get("http://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&sensor=true", function(cityInfo) {
+				if (cityInfo.results[0].address_components[4].short_name == "US") {
+					cityName = cityInfo.results[1].formatted_address;
+				}
+				var query = "lat=" + lat + "&lon=" + lon;
+				$.get(url + "forecast?" + query + unit + key, forecast);
+				$.get(url + "weather?" + query + unit + key, currentWeather);
+				$.get(url + "forecast/daily?" + query + unit + "&cnt=14" + key, nextFourTeen);
+			});
+		} else {
+			// if failed with Google Geolocation, have to get user ip address to get initial location
+			$.getJSON('http://ipinfo.io', function(data) {
+				cityName = data.city + ", " + data.region;
+				var lat = data.loc.split(",")[0];
+				var lon = data.loc.split(",")[1];
+				var query = "lat=" + lat + "&lon=" + lon;
+				$.get(url + "forecast?" + query + unit + key, forecast);
+				$.get(url + "weather?" + query + unit + key, currentWeather);
+				$.get(url + "forecast/daily?" + query + unit + "&cnt=14" + key, nextFourTeen);
+			});
+		}
 	});
 
 	// auto compelte for city
