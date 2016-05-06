@@ -64,7 +64,7 @@ $(function() {
 	}
 
 	// init map function
-	function initMap(lat, lng) {
+	function initMap(lat, lng, icon_url) {
 		// Create a map object and specify the DOM element for display.
 		$('#map').addClass("thumbnail");
 		var map = new google.maps.Map(document.getElementById('map'), {
@@ -82,6 +82,7 @@ $(function() {
 				lng: lng
 			},
 			map: map,
+			icon: icon_url
 		});
 	}
 
@@ -93,7 +94,6 @@ $(function() {
 
 	// forecast
 	function forecast(result) {
-		initMap(result.city.coord.lat, result.city.coord.lon);
 		var dataSeries = [];
 		for (var i = 0; i < result.list.length; i += 8) {
 			var dayData = result.list.slice(i, i + 8).map(function(data) {
@@ -301,13 +301,15 @@ $(function() {
 
 	// current weather
 	function currentWeather(currentData) {
+		var cloud_icon_url = "http://openweathermap.org/img/w/" + currentData.weather[0].icon + ".png";
+		initMap(currentData.coord.lat, currentData.coord.lon, cloud_icon_url);
 		if (!cityName) {
 			cityName = currentData.name + ", " + currentData.sys.country;
 		}
 		var templateData = {
 			city_name: cityName,
 			weather_description: titleize(currentData.weather[0].description),
-			cloud_icon_url: "http://openweathermap.org/img/w/" + currentData.weather[0].icon + ".png",
+			cloud_icon_url: cloud_icon_url,
 			temp_icon_url: "images/temperature.png",
 			humidity_icon_url: "images/humidity.png",
 			wind_icon_url: "images/wind.png",
