@@ -9,18 +9,23 @@ $(function() {
 	var template = $('#template').html();
 	var template2 = $('#restaurantTemplate').html();
 
+	// lat, lng
+	// var lat, lng, city;
+
 	// OpenWeatherMap
 	var url = "http://api.openweathermap.org/data/2.5/";
 	var unit = "&units=imperial";
 	var key = "&appid=c55ec823be46f88fbcf55db70cc8e772";
-	var cityName;
+	var lat, lng, cityName;
 	$.getJSON('http://ipinfo.io', function(data) {
-		var lat = data.loc.split(",")[0];
-		var lon = data.loc.split(",")[1];
-		var query = "lat=" + lat + "&lon=" + lon;
-		$.get(url + "forecast?" + query + unit + key, forecast);
-		$.get(url + "weather?" + query + unit + key, currentWeather);
-		$.get(url + "forecast/daily?" + query + unit + "&cnt=14" + key, nextFourTeen);
+		lat = data.loc.split(",")[0];
+		lng = data.loc.split(",")[1];
+		var query = "lat=" + lat + "&lon=" + lng;
+		$.get(url + "forecast?" + query + unit + key, forecast).then(function() {
+			$.get(url + "weather?" + query + unit + key, currentWeather).then(function() {
+				$.get(url + "forecast/daily?" + query + unit + "&cnt=14" + key, nextFourTeen);
+			});
+		});
 	});
 
 	// auto compelte for city
@@ -28,16 +33,34 @@ $(function() {
 		callback: initialize,
 		other_params: 'sensor=false&libraries=places'
 	});
-	$("#search-form").on("submit", function(e) {
-		cityName = titleize($(this).find("#id_location").val());
-		console.log(cityName);
+	$(".search-btn, #id_location").on("click, change", function(e) {
+		lat = undefined;
+		lng = undefined;
 		e.preventDefault();
-		var query = $(this).serialize();
-		$("input#id_location").val('');
-		$.get(url + "forecast?" + query + unit + key, forecast);
-		$.get(url + "weather?" + query + unit + key, currentWeather);
-		$.get(url + "forecast/daily?" + query + unit + "&cnt=14" + key, nextFourTeen);
+		if ($("#id_location").val() === '') {
+			alert("Please enter a location.");
+		} else {
+			var query;
+			getCityName(query).then(function(query) {
+				$.get(url + "forecast?" + query + unit + key, forecast).then(function() {
+					$.get(url + "weather?" + query + unit + key, currentWeather).then(function() {
+						$.get(url + "forecast/daily?" + query + unit + "&cnt=14" + key, nextFourTeen);
+					});
+				});
+			});
+		}
+
 	});
+
+	function getCityName(query) {
+		return new Promise(function(res, rej) {
+			setTimeout(function() {
+				cityName = titleize($("#id_location").val());
+				query = "q=" + cityName;
+				res(query);
+			}, 100);
+		});
+	}
 
 	function initialize() {
 		var input = document.getElementById('id_location');
@@ -132,6 +155,8 @@ $(function() {
 
 	// 2 week forecast for temprature
 	function nextFourTeen(result) {
+		lat = lat || result.city.coord.lat;
+		lng = lng || result.city.coord.lon;
 		var seriesTempData = [],
 			drilldownTempData = [],
 			windHumidityCategories = [],
@@ -280,21 +305,28 @@ $(function() {
 				}
 			}]
 		});
-		var lat = result.city.coord.lat;
-		var lng = result.city.coord.lon;
+
 		$("#restaurants-map").addClass("thumbnail");
 		var map = new google.maps.Map(document.getElementById('restaurants-map'), {
 			center: {
-				lat: lat,
-				lng: lng
+				lat: Number(lat),
+				lng: Number(lng)
 			},
 			scrollwheel: false,
 			zoom: 14,
 			draggable: false
 		});
+
 		$.get("https://api.foursquare.com/v2/venues/search?client_id=JRAIR0U0EJF0MRS02CHQ1BIQZ2UGAKHJUTNDYMYL11L3E4O0&client_secret=UYZH52YG3KBL0PR0YU55BML5LLVUTP2YOI2YKXFT2KWXAUJY&v=20130815&ll=" + lat + "," + lng + "&query=restaurant&radius=2000", function(fourSquare) {
-			console.log(fourSquare.response.venues);
 			var venues = fourSquare.response.venues;
+			renderFourSquare(result, fourSquare, venues, map);
+		});
+	}
+
+	function renderFourSquare(result, fourSquare, venues, map) {
+		if (venues.length === 0) {
+			$('#restaurants').hide();
+		} else {
 			var infowindow = new google.maps.InfoWindow();
 			var bounds = new google.maps.LatLngBounds();
 			venues.forEach(function(venue) {
@@ -328,10 +360,9 @@ $(function() {
 			});
 			map.fitBounds(bounds);
 			// mustache
-			console.log(result)
-			var templateData2	= {
+			var templateData2 = {
 				number_of_restaurants: fourSquare.response.venues.length,
-				city: result.city.name,
+				city: cityName,
 				reminder: "Click on marker to see details"
 			};
 			Mustache.parse(template); // optional, speeds up future uses
@@ -339,7 +370,7 @@ $(function() {
 				restaurants: templateData2
 			});
 			$('#target2').html(rendered);
-		});
+		}
 	}
 
 	// current weather
